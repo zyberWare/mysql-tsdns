@@ -1,0 +1,111 @@
+#!/usr/bin/node
+var log = require('util').log;
+var net = require('net');
+var mysql = require('/usr/lib/nodejs/mysql');
+var connection, server, domain, tables;
+
+(function start() {
+    log('Starting MySQL-TSDNS-Server for Teamspeak 3');
+    connection = new mysql.createConnection({
+        host: 'localhost',
+        user: 'tsdns',
+        password: 'tsdns',
+        database: 'tsdns',
+        debug: false
+    });
+    connection.on('error', function(err) {
+        if (!err.fatal) {
+            return;
+        }
+
+        if (err.code !== 'PROTOCOL_CONNECTION_LOST') {
+            throw err;
+        }
+
+        server.close(function() {
+            start();
+        });
+    });
+    connection.connect();
+
+    server = net.createServer(function (socket) {
+        var timeout = setTimeout(function() {
+            writeEnd(socket, '404');
+        }, 500);
+        socket.on('data', function(data) {
+            clearTimeout(timeout);
+            domain = data.toString().replace(/\r|\n/g, '');
+            debug('Searching for domain "'+domain+'":');
+            debug('  Getting Server-Tables...');
+            connection.query('SELECT tableName, additionalColumns FROM serverTables WHERE active=1 ORDER BY orderID', function(error, tableResults) {
+                if(error) {
+                    throw error;
+                }
+                tables = tableResults;
+                searchForDomain(socket);
+            });
+        });
+    });
+    server.on('close', function() {
+        if(typeof connection.close=="function") connection.close();
+        log('Stopped MySQL-TSDNS-SERVER for Teamspeak 3');
+    })
+    server.listen(41144);
+})();
+
+function searchForDomain(socket) {
+    var table = tables.shift();
+    debug('  Searching in Server-Table "'+table.tableName+'"...');
+    if(table.additionalColumns) {
+        var additionalColumns = ', '+table.additionalColumns;
+    } else {
+        var additionalColumns = '';
+    }
+    connection.query('SELECT domain, address'+additionalColumns+' FROM '+table.tableName+' WHERE domain=? AND active=1', [domain], function(error, rows) {
+        if(error) {
+            throw error;
+        }
+        if(rows.length===1) {
+            debug('  Found something...');
+            var row = rows[0];
+            if(typeof row.lastLookup!=="undefined") {
+               debug('  Updating lastLookup-Column...');
+                connection.query('UPDATE '+table.tableName+' set lastLookup=\''+parseInt(Date.now()/1000)+'\' WHERE domain=?', [row.domain], function(error) {
+                    if(error) {
+                        throw error;
+                    }
+                });
+            }
+            writeEnd(socket, row.address);
+        } else if(tables.length>0) {
+            searchForDomain(socket);
+        } else {
+            debug('  Searching in serverDefault-Table...');
+            connection.query('SELECT address FROM serverDefault WHERE active=1 LIMIT 1', function(error, rows) {
+                if(error) {
+                    throw error;
+                }
+                if(rows.length==1) {
+                    debug('  Found something...');
+                    writeEnd(socket, rows[0].address);
+                } else {
+                    debug('  Found nothing, seems like the searched Domain doesn\'t exists...');
+                    writeEnd(socket, '404');
+                }
+            });
+        }
+    });
+}
+function writeEnd(socket, message) {
+        debug('  Sending Answer-Query... '+message);
+        if(socket._handle) {
+            socket.write(message, function() {
+                socket.end();
+            });
+        } else {
+            debug('    Seems like something is wrong with the socket, answer was not send!');
+        }
+}
+function debug(message) {
+    //log(message);
+}
