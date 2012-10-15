@@ -1,6 +1,7 @@
 #!/usr/bin/node
 var log = require('util').log;
 var net = require('net');
+var fs = require('fs');
 var mysql = require('/usr/lib/nodejs/mysql');
 var connection, server, domain, tables;
 
@@ -21,8 +22,10 @@ var connection, server, domain, tables;
         if (err.code !== 'PROTOCOL_CONNECTION_LOST') {
             throw err;
         }
-
+        log('Lost Connection to the MySQL-Database...');
+        
         server.close(function() {
+            log('Server Closed, restarting programm...');
             start();
         });
     });
@@ -31,9 +34,8 @@ var connection, server, domain, tables;
     server = net.createServer(function (socket) {
         var timeout = setTimeout(function() {
             writeEnd(socket, '404');
-        }, 500);
+        }, 1000);
         socket.on('data', function(data) {
-            clearTimeout(timeout);
             domain = data.toString().replace(/\r|\n/g, '');
             debug('Searching for domain "'+domain+'":');
             debug('  Getting Server-Tables...');
@@ -101,6 +103,17 @@ function writeEnd(socket, message) {
         if(socket._handle) {
             socket.write(message, function() {
                 socket.end();
+                //Access - Log
+                fs.open('access.log', 'a', 0666, function(error, id) {
+                    fs.write(id, JSON.stringify({
+                        'time': new Date().getTime(),
+                        'ip': socket.remoteAddress,
+                        'in': domain,
+                        'out': message
+                    }) + "\n", 0, null, function(err, written, buffer) {
+                        fs.close(id);
+                    });
+                });
             });
         } else {
             debug('    Seems like something is wrong with the socket, answer was not send!');
