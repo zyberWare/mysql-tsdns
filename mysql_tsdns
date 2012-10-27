@@ -32,10 +32,14 @@ var connection, server, domain, tables;
     connection.connect();
 
     server = net.createServer(function (socket) {
-        var timeout = setTimeout(function() {
+        var dataTimeout = setTimeout(function() {
             writeEnd(socket, '404');
-        }, 1000);
+        }, 500);
+        var freeTimeout = setTimeout(function() {
+            writeEnd(socket, '404');
+        }, 5000); //Timeout for freeing connection-count 
         socket.on('data', function(data) {
+            clearTimeout(dataTimeout);
             domain = data.toString().replace(/\r|\n/g, '');
             debug('Searching for domain "'+domain+'":');
             debug('  Getting Server-Tables...');
@@ -100,17 +104,20 @@ function searchForDomain(socket) {
 }
 function writeEnd(socket, message) {
         debug('  Sending Answer-Query... '+message);
-        if(socket._handle) {
+        if(socket && socket._handle) {
+            var accessLogMessage = JSON.stringify({
+                'time': new Date().toString(),
+                'ip': socket.remoteAddress,
+                'in': domain,
+                'out': message
+            }) + "\n";
             socket.write(message, function() {
-                socket.end();
+                if(socket && socket._handle) {
+                    socket.end();
+                }
                 //Access - Log
                 fs.open('access.log', 'a', 0666, function(error, id) {
-                    fs.write(id, JSON.stringify({
-                        'time': new Date().getTime(),
-                        'ip': socket.remoteAddress,
-                        'in': domain,
-                        'out': message
-                    }) + "\n", 0, null, function(err, written, buffer) {
+                    fs.write(id, accessLogMessage, 0, null, function(err, written, buffer) {
                         fs.close(id);
                     });
                 });
