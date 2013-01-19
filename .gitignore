@@ -1,4 +1,3 @@
+tsdnsserver.pid
 output.log
 error.log
-access.log
-tsdnsserver.pid

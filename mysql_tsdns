@@ -2,12 +2,12 @@
 var log = require('util').log;
 var net = require('net');
 var fs = require('fs');
-var mysql = require('/usr/lib/nodejs/mysql');
-var connection, server, domain, tables;
+var mysql = require('mysql');
+var connection, server;
 
 (function start() {
     log('Starting MySQL-TSDNS-Server for Teamspeak 3');
-    connection = new mysql.createConnection({
+    connection = mysql.createClient({
         host: 'localhost',
         user: 'tsdns',
         password: 'tsdns',
@@ -29,15 +29,19 @@ var connection, server, domain, tables;
             start();
         });
     });
-    connection.connect();
 
     server = net.createServer(function (socket) {
+        var writeEnd = function(message) {
+            socket.write(message, function() {
+                socket.end();
+            });
+        };
         var dataTimeout = setTimeout(function() {
-            writeEnd(socket, '404');
+            writeEnd('404');
         }, 500);
         var freeTimeout = setTimeout(function() {
-            writeEnd(socket, '404');
-        }, 5000); //Timeout for freeing connection-count 
+            writeEnd('404');
+        }, 5000); //Timeout for freeing connection-count
         socket.on('data', function(data) {
             clearTimeout(dataTimeout);
             domain = data.toString().replace(/\r|\n/g, '');
@@ -48,9 +52,53 @@ var connection, server, domain, tables;
                     throw error;
                 }
                 tables = tableResults;
-                searchForDomain(socket);
+                
+                (function searchForDomain() {
+                    var table = tables.shift();
+                    debug('  Searching in Server-Table "'+table.tableName+'"...');
+                    if(table.additionalColumns) {
+                        var additionalColumns = ', '+table.additionalColumns;
+                    } else {
+                        var additionalColumns = '';
+                    }
+                    connection.query('SELECT domain, address'+additionalColumns+' FROM '+table.tableName+' WHERE domain=? AND active=1', [domain], function(error, rows) {
+                        if(error) {
+                            throw error;
+                        }
+                        if(rows.length===1) {
+                            debug('  Found something...');
+                            var row = rows[0];
+                            if(typeof row.lastLookup!=="undefined") {
+                               debug('  Updating lastLookup-Column...');
+                                connection.query('UPDATE '+table.tableName+' set lastLookup=\''+parseInt(Date.now()/1000)+'\' WHERE domain=?', [row.domain], function(error) {
+                                    if(error) {
+                                        throw error;
+                                    }
+                                });
+                            }
+                            writeEnd(row.address);
+                        } else if(tables.length>0) {
+                            searchForDomain();
+                        } else {
+                            debug('  Searching in serverDefault-Table...');
+                            connection.query('SELECT address FROM serverDefault WHERE active=1 LIMIT 1', function(error, rows) {
+                                if(error) {
+                                    throw error;
+                                }
+                                if(rows.length==1) {
+                                    debug('  Found something...');
+                                    writeEnd(rows[0].address);
+                                } else {
+                                    debug('  Found nothing, seems like the searched Domain doesn\'t exists...');
+                                    writeEnd('404');
+                                }
+                            });
+                        }
+                    });
+                })();
             });
         });
+        socket.on('error', function(error) {}); //Blackhole all Errors
     });
     server.on('close', function() {
         if(typeof connection.close=="function") connection.close();
@@ -58,74 +106,6 @@ var connection, server, domain, tables;
     })
     server.listen(41144);
 })();
-
-function searchForDomain(socket) {
-    var table = tables.shift();
-    debug('  Searching in Server-Table "'+table.tableName+'"...');
-    if(table.additionalColumns) {
-        var additionalColumns = ', '+table.additionalColumns;
-    } else {
-        var additionalColumns = '';
-    }
-    connection.query('SELECT domain, address'+additionalColumns+' FROM '+table.tableName+' WHERE domain=? AND active=1', [domain], function(error, rows) {
-        if(error) {
-            throw error;
-        }
-        if(rows.length===1) {
-            debug('  Found something...');
-            var row = rows[0];
-            if(typeof row.lastLookup!=="undefined") {
-               debug('  Updating lastLookup-Column...');
-                connection.query('UPDATE '+table.tableName+' set lastLookup=\''+parseInt(Date.now()/1000)+'\' WHERE domain=?', [row.domain], function(error) {
-                    if(error) {
-                        throw error;
-                    }
-                });
-            }
-            writeEnd(socket, row.address);
-        } else if(tables.length>0) {
-            searchForDomain(socket);
-        } else {
-            debug('  Searching in serverDefault-Table...');
-            connection.query('SELECT address FROM serverDefault WHERE active=1 LIMIT 1', function(error, rows) {
-                if(error) {
-                    throw error;
-                }
-                if(rows.length==1) {
-                    debug('  Found something...');
-                    writeEnd(socket, rows[0].address);
-                } else {
-                    debug('  Found nothing, seems like the searched Domain doesn\'t exists...');
-                    writeEnd(socket, '404');
-                }
-            });
-        }
-    });
-}
-function writeEnd(socket, message) {
-        debug('  Sending Answer-Query... '+message);
-        if(socket && socket._handle) {
-            var accessLogMessage = JSON.stringify({
-                'time': new Date().toString(),
-                'ip': socket.remoteAddress,
-                'in': domain,
-                'out': message
-            }) + "\n";
-            socket.write(message, function() {
-                if(socket && socket._handle) {
-                    socket.end();
-                }
-                //Access - Log
-                fs.open('access.log', 'a', 0666, function(error, id) {
-                    fs.write(id, accessLogMessage, 0, null, function(err, written, buffer) {
-                        fs.close(id);
-                    });
-                });
-            });
-        } else {
-            debug('    Seems like something is wrong with the socket, answer was not send!');
-        }
-}
 function debug(message) {
     //log(message);
 }
