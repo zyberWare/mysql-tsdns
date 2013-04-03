@@ -68,7 +68,7 @@ var connection, server;
                             throw error;
                         }
                         if(rows.length===1) {
-                            debug('  Found something...');
+                            debug('  Found something... (' + rows[0].address + ')');
                             var row = rows[0];
                             if(typeof row.lastLookup!=="undefined") {
                                debug('  Updating lastLookup-Column...');
@@ -88,7 +88,7 @@ var connection, server;
                                     throw error;
                                 }
                                 if(rows.length==1) {
-                                    debug('  Found something...');
+                                    debug('  Found something... (' + rows[0].address + ')');
                                     writeEnd(rows[0].address);
                                 } else {
                                     debug('  Found nothing, seems like the searched Domain doesn\'t exists...');
