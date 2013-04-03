@@ -4,7 +4,7 @@
 SCRIPTPATH="$(dirname "${0}")"
 cd "${SCRIPTPATH}"
 
-SCRIPTNAME="mysql_tsdns"
+SCRIPTNAME="mysql_tsdns.js"
 if [ ! -e $SCRIPTNAME ]; then
 	echo "Could not locate JS-File, aborting"
 	exit 5
