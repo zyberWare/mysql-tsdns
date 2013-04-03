@@ -1,3 +1,4 @@
 tsdnsserver.pid
 output.log
 error.log
+node_modules
