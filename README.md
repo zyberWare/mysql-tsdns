@@ -1,6 +1,7 @@
 MySQL-TSDNS
 ===========
-A TSDNS-Server for Teamspeak 3, that uses MySQL for configuration.
+A TSDNS-Server for Teamspeak 3, that uses MySQL for configuration.  
+For more information how it works, look at [**Configuration**](#configuration).
 
 Requirements
 ------------
