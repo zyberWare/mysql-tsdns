@@ -24,6 +24,9 @@ Configuration
 MySQL-TSDNS stores all data in the db (name would be silly otherwise).  
 As a domain is requested, MySQL-TSDNS first read all available tables to look the teamspeak-servers up from the `serverTables`-Table, then it goes throw every table and searches for the requested domain. If it found something, it gives back the destination and closes the request. If nothing is found, it tries to get a default-server from the `serverDefault`-Table, if one is specified and active.
 
+If nothing is found again, MySQL-TSDNS returns `404` and closes the request also.  
+The Teamspeak-Client will show an "Server not found" in this case.
+
 An example setup is shipped with the import of the `init.sql`-file, which will fit the most usages (just add more servers to the `basic`-table).
 
 ### A note to the `additionalColumns`-Column in the `serverTables`-Table
