@@ -12,12 +12,12 @@ Requirements
 Installation
 ------------
  1. Download the Git-Repo (we recommend stable) into a directory of your choice.
- 2. Run "`npm install`" to install the dependencies.
- 3. Copy the `config.dist.json`-file to ``config.json``
+ 2. Run `npm install` to install the dependencies.
+ 3. Copy the `config.dist.json`-file to `config.json`
  and change it, as your needs.
  4. Import the `init.sql` into your database (structure + testdata). Ensure that you selected a target scheme first.
  5. Change the settings in the db, as your needs (see [**Configuration**](#configuration) for more).
- 6. Run "`./mysql_tsdns_startscript start`" to start the MySQL-TSDNS-server and your are ready. :D
+ 6. Run `./mysql_tsdns_startscript start` to start the MySQL-TSDNS-server and your are ready. :D
 
 Configuration
 -------------
