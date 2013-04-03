@@ -1,0 +1,11 @@
+{
+    "host":     "localhost",
+    "port":     3306,
+    "user":     "%mysqlUser%",
+    "password": "%mysqlPasssword%",
+    "database": "%mysqlDatabase%",
+    "debug":    {
+        "application": false,
+        "mysql":       false
+    }
+}

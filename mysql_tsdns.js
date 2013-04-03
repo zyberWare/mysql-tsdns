@@ -3,16 +3,18 @@ var log = require('util').log;
 var net = require('net');
 var fs = require('fs');
 var mysql = require('mysql');
+var config = require('./config');
 var connection, server;
 
 (function start() {
     log('Starting MySQL-TSDNS-Server for Teamspeak 3');
     connection = mysql.createClient({
-        host: 'localhost',
-        user: 'tsdns',
-        password: 'tsdns',
-        database: 'tsdns',
-        debug: false
+        host: config.host,
+        port: config.port,
+        user: config.user,
+        password: config.password,
+        database: config.database,
+        debug: config.debug.mysql
     });
     connection.on('error', function(err) {
         if (!err.fatal) {
@@ -107,5 +109,7 @@ var connection, server;
     server.listen(41144);
 })();
 function debug(message) {
-    //log(message);
+    if (config.debug.application === true) {
+        log(message);
+    }
 }
