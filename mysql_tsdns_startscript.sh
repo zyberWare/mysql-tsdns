@@ -1,6 +1,9 @@
 #!/bin/sh
-# MySQL-TSDNS-Server Startscript
 
+# Any copyright is dedicated to the Public Domain.
+# http://creativecommons.org/publicdomain/zero/1.0/
+
+# MySQL-TSDNS-Server Startscript
 SCRIPTPATH="$(dirname "${0}")"
 cd "${SCRIPTPATH}"
 
