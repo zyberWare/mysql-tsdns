@@ -57,8 +57,8 @@ var connection, server;
                 if(error) {
                     throw error;
                 }
-                tables = tableResults;
-                
+                var tables = tableResults;
+
                 (function searchForDomain() {
                     var table = tables.shift();
                     debug('  Searching in Server-Table "'+table.tableName+'"...');
