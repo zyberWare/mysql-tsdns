@@ -51,7 +51,7 @@ var config = require('./config');
         };
         var freeTimeout = setTimeout(function() {
             writeEnd('404');
-        }, 15000); //Timeout for freeing connection-count
+        }, 60000); //Timeout for freeing connection-count
         socket.on('data', function(data) {
             domain = data.toString().replace(/\r|\n/g, '');
             debug('Searching for domain "'+domain+'":');
