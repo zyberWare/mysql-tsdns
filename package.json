@@ -7,12 +7,12 @@
     "url": "https://github.com/zyberWare/MySQL-TSDNS"
   },
   "description": "A TSDNS-Server for Teamspeak 3, that uses MySQL for configuration",
-  "homepage": "https://github.com/felixge/node-mysql",
+  "homepage": "https://github.com/zyberWare/MySQL-TSDNS",
   "repository": {
     "type": "git",
     "url": "git://github.com/zyberWare/MySQL-TSDNS"
   },
-  "main": "./mysql_tsdns",
+  "main": "./mysql_tsdns.js",
   "dependencies": {
     "mysql": "0.9.6"
   },
