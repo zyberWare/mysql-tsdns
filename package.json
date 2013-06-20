@@ -12,7 +12,7 @@
     "type": "git",
     "url": "git://github.com/zyberWare/MySQL-TSDNS"
   },
-  "main": "./mysql_tsdns.js",
+  "main": "./mysql_tsdns",
   "dependencies": {
     "mysql": "0.9.6"
   },
