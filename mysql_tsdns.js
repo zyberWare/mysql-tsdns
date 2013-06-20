@@ -8,11 +8,10 @@ var net = require('net');
 var fs = require('fs');
 var mysql = require('mysql');
 var config = require('./config');
-var connection, server;
 
 (function start() {
     log('Starting MySQL-TSDNS-Server for Teamspeak 3');
-    var sockets = [];
+    var connection, server, sockets = [];
 
     connection = mysql.createClient({
         host: config.host,
