@@ -11,9 +11,9 @@ var config = require('./config');
 
 (function start() {
     log('Starting MySQL-TSDNS-Server for Teamspeak 3');
-    var connection, server, sockets = [];
+    var databaseConnection, server, sockets = [];
 
-    connection = mysql.createClient({
+    databaseConnection = mysql.createClient({
         host: config.host,
         port: config.port,
         user: config.user,
@@ -21,7 +21,7 @@ var config = require('./config');
         database: config.database,
         debug: config.debug.mysql
     });
-    connection.on('error', function(err) {
+    databaseConnection.on('error', function(err) {
         if (!err.fatal) {
             return;
         }
@@ -56,7 +56,7 @@ var config = require('./config');
             domain = data.toString().replace(/\r|\n/g, '');
             debug('Searching for domain "'+domain+'":');
             debug('  Getting Server-Tables...');
-            connection.query('SELECT tableName, additionalColumns FROM serverTables WHERE active=1 ORDER BY orderID', function(error, tableResults) {
+            databaseConnection.query('SELECT tableName, additionalColumns FROM serverTables WHERE active=1 ORDER BY orderID', function(error, tableResults) {
                 if(error) {
                     throw error;
                 }
@@ -70,7 +70,7 @@ var config = require('./config');
                     } else {
                         var additionalColumns = '';
                     }
-                    connection.query('SELECT domain, address'+additionalColumns+' FROM '+table.tableName+' WHERE domain=? AND active=1', [domain], function(error, rows) {
+                    databaseConnection.query('SELECT domain, address'+additionalColumns+' FROM '+table.tableName+' WHERE domain=? AND active=1', [domain], function(error, rows) {
                         if(error) {
                             throw error;
                         }
@@ -79,7 +79,7 @@ var config = require('./config');
                             var row = rows[0];
                             if(typeof row.lastLookup!=="undefined") {
                                debug('  Updating lastLookup-Column...');
-                                connection.query('UPDATE '+table.tableName+' set lastLookup=\''+parseInt(Date.now()/1000)+'\' WHERE domain=?', [row.domain], function(error) {
+                                databaseConnection.query('UPDATE '+table.tableName+' set lastLookup=\''+parseInt(Date.now()/1000)+'\' WHERE domain=?', [row.domain], function(error) {
                                     if(error) {
                                         throw error;
                                     }
@@ -90,7 +90,7 @@ var config = require('./config');
                             searchForDomain();
                         } else {
                             debug('  Searching in serverDefault-Table...');
-                            connection.query('SELECT address FROM serverDefault WHERE active=1 LIMIT 1', function(error, rows) {
+                            databaseConnection.query('SELECT address FROM serverDefault WHERE active=1 LIMIT 1', function(error, rows) {
                                 if(error) {
                                     throw error;
                                 }
@@ -117,7 +117,7 @@ var config = require('./config');
         socket.on('error', function(error) {}); //Blackhole all Errors
     });
     server.on('close', function() {
-        if(typeof connection.close=="function") connection.close();
+        if(typeof databaseConnection.close=="function") databaseConnection.close();
         log('Stopped MySQL-TSDNS-SERVER for Teamspeak 3');
     })
     server.listen(41144);
