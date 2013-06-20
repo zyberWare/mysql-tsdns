@@ -12,6 +12,8 @@ var connection, server;
 
 (function start() {
     log('Starting MySQL-TSDNS-Server for Teamspeak 3');
+    var sockets = [];
+
     connection = mysql.createClient({
         host: config.host,
         port: config.port,
@@ -29,7 +31,12 @@ var connection, server;
             throw err;
         }
         log('Lost Connection to the MySQL-Database...');
-        
+
+        //Destroy all open sockets
+        for (i in sockets) {
+            sockets[i].destroy();
+        }
+        //Close the server
         server.close(function() {
             log('Server Closed, restarting programm...');
             start();
@@ -37,6 +44,7 @@ var connection, server;
     });
 
     server = net.createServer(function (socket) {
+        sockets.push(socket);
         var writeEnd = function(message) {
             socket.write(message, function() {
                 socket.end();
@@ -100,6 +108,13 @@ var connection, server;
                 })();
             });
         });
+        socket.on('close', function() {
+            for (i in sockets) {
+                if (sockets[i] === socket) {
+                    sockets.splice(i, 1);
+                }
+            }
+        })
         socket.on('error', function(error) {}); //Blackhole all Errors
     });
     server.on('close', function() {
