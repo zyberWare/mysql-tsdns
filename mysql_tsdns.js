@@ -42,14 +42,10 @@ var connection, server;
                 socket.end();
             });
         };
-        var dataTimeout = setTimeout(function() {
-            writeEnd('404');
-        }, 500);
         var freeTimeout = setTimeout(function() {
             writeEnd('404');
         }, 5000); //Timeout for freeing connection-count
         socket.on('data', function(data) {
-            clearTimeout(dataTimeout);
             domain = data.toString().replace(/\r|\n/g, '');
             debug('Searching for domain "'+domain+'":');
             debug('  Getting Server-Tables...');
