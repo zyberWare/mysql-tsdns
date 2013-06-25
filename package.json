@@ -1,20 +1,20 @@
 {
   "name": "MySQL-TSDNS",
   "version": "0.1.0",
-  "author": {
-    "name": "zyberspace",
-    "email": "zyberspace@zyberware.org",
-    "url": "https://github.com/zyberWare/MySQL-TSDNS"
-  },
   "description": "A TSDNS-Server for Teamspeak 3, that uses MySQL for configuration",
   "homepage": "https://github.com/zyberWare/MySQL-TSDNS",
+  "bugs": "http://github.com/zyberWare/MySQL-TSDNS/issues",
+  "license": "MPL",
+  "author": {
+    "name": "zyberspace",
+    "email": "zyberspace@zyberware.org"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/zyberWare/MySQL-TSDNS"
   },
-  "main": "./mysql_tsdns",
   "dependencies": {
-    "mysql": "0.9.6"
+    "mysql": "~0.9.6"
   },
   "engines": {
     "node": "*"
