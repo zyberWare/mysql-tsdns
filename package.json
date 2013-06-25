@@ -4,7 +4,12 @@
   "description": "A TSDNS-Server for Teamspeak 3, that uses MySQL for configuration",
   "homepage": "https://github.com/zyberWare/mysql-tsdns",
   "bugs": "https://github.com/zyberWare/mysql-tsdns/issues",
-  "license": "MPL",
+  "licenses" : [
+    {
+      "type" : "MPL",
+      "url" : "http://mozilla.org/MPL/2.0/"
+    }
+  ],
   "author": {
     "name": "zyberspace",
     "email": "zyberspace@zyberware.org"
