@@ -1,6 +1,6 @@
 {
   "name": "mysql-tsdns",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A TSDNS-Server for Teamspeak 3, that uses MySQL for configuration",
   "homepage": "https://github.com/zyberWare/mysql-tsdns",
   "bugs": "https://github.com/zyberWare/mysql-tsdns/issues",
