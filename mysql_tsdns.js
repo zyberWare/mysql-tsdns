@@ -70,7 +70,7 @@ var config = require('./config');
                     } else {
                         var additionalColumns = '';
                     }
-                    databaseConnection.query('SELECT domain, address'+additionalColumns+' FROM '+table.tableName+' WHERE domain=? AND active=1', [domain], function(error, rows) {
+                    databaseConnection.query('SELECT domain, address'+additionalColumns+' FROM `'+table.tableName+'` WHERE domain=? AND active=1', [domain], function(error, rows) {
                         if(error) {
                             throw error;
                         }
@@ -79,7 +79,7 @@ var config = require('./config');
                             var row = rows[0];
                             if(typeof row.lastLookup!=="undefined") {
                                debug('  Updating lastLookup-Column...');
-                                databaseConnection.query('UPDATE '+table.tableName+' set lastLookup=\''+parseInt(Date.now()/1000)+'\' WHERE domain=?', [row.domain], function(error) {
+                                databaseConnection.query('UPDATE `'+table.tableName+'` set lastLookup=\''+parseInt(Date.now()/1000)+'\' WHERE domain=?', [row.domain], function(error) {
                                     if(error) {
                                         throw error;
                                     }
