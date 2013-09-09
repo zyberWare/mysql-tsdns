@@ -6,7 +6,7 @@ For more information how it works, look at [**Configuration**](#configuration).
 Requirements
 ------------
  - [nodejs](http://nodejs.org/)
- - [npm](https://npmjs.org)
+ - [npm](https://npmjs.org) (only if installed from source)
 
 
 Installation
