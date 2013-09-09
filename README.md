@@ -12,17 +12,16 @@ Requirements
 Installation
 ------------
  1. Download the latest release from the [release-page](https://github.com/zyberWare/mysql-tsdns/releases).
- 2. Run `npm install` to install the dependencies.
- 3. Edit the `config.json`-file, as your needs.
- 4. Import the `init.sql` into your database (structure + testdata). Ensure that you selected a target scheme with `use myDatabase` first.
- 5. Change the settings in the db, as your needs (see [**Configuration**](#configuration) for more).
- 6. Run `./mysql_tsdns_startscript start` to start the MySQL-TSDNS-server and your are ready. :D
+ 2. Edit the `config.json`-file, as your needs.
+ 3. Import the `init.sql` into your database (structure + testdata). Ensure that you selected a target scheme with `use myDatabase` first.
+ 4. Change the settings in the db, as your needs (see [**Configuration**](#configuration) for more).
+ 5. Run `./mysql_tsdns_startscript start` to start the MySQL-TSDNS-server and your are ready. :D
 
 ### From source
  1. Download the git-repository.
  2. Run `npm install` to install the dependencies.
  3. Copy the `config.dist.json`-file to `config.json`.
- 4. Proceed with installation-steps 3-6 from above.
+ 4. Proceed with installation-steps 2-5 from above.
 
 Configuration
 -------------
