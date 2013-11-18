@@ -15,7 +15,7 @@ Installation
  2. Edit the `config.json`-file, as your needs.
  3. Import the `init.sql` into your database (structure + testdata). Ensure that you selected a target scheme with `use myDatabase` first.
  4. Change the settings in the db, as your needs (see [**Configuration**](#configuration) for more).
- 5. Run `./mysql_tsdns_startscript start` to start the MySQL-TSDNS-server and your are ready. :D
+ 5. Run `./mysql_tsdns_startscript.sh start` to start the MySQL-TSDNS-server and your are ready. :D
 
 ### From source
  1. Download the git-repository.
